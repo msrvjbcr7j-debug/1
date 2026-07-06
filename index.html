@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d7a72">
+<meta name="description" content="Your pocket companion for the Cassia Bintan holiday — itinerary, packing, budget, and island guide, all offline.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌴%3C/text%3E%3C/svg%3E">
+<title>Cassia Bintan · Holiday Companion</title>
+<style>
+:root{
+  --teal:#0d7a72; --teal-dark:#075e57; --teal-light:#e0f2f0;
+  --sand:#f7f1e6; --sand-dark:#efe5d2;
+  --sunset:#f2994a; --sunset-deep:#e8703a; --coral:#e85d5d;
+  --ink:#22333b; --ink-soft:#5c6b73; --card:#ffffff; --line:#e6ded0;
+  --ok:#2e9e6b; --shadow:0 4px 18px rgba(34,51,59,.08);
+  --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --teal:#2bb3a8; --teal-dark:#1d8d84; --teal-light:#0f2f2c;
+    --sand:#141a1c; --sand-dark:#1c2427;
+    --ink:#e8eff1; --ink-soft:#9fb0b5; --card:#1e282c; --line:#2c383d;
+    --shadow:0 4px 18px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--sand); color:var(--ink); line-height:1.5;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  min-height:100vh;
+}
+button{font:inherit; cursor:pointer; border:none; background:none; color:inherit}
+input,select,textarea{font:inherit; color:inherit}
+h1,h2,h3{line-height:1.25}
+
+/* ---------- header ---------- */
+header{
+  background:linear-gradient(150deg,var(--teal) 0%,var(--teal-dark) 55%,#054a44 100%);
+  color:#fff; padding:calc(18px + env(safe-area-inset-top)) 20px 44px; position:relative; overflow:hidden;
+}
+header .palm{position:absolute; right:-14px; top:2px; font-size:92px; opacity:.16; transform:rotate(12deg); pointer-events:none}
+header .eyebrow{font-size:12px; letter-spacing:.18em; text-transform:uppercase; opacity:.8}
+header h1{font-size:26px; font-weight:700; margin-top:2px}
+header .sub{font-size:14px; opacity:.85; margin-top:2px}
+.waves{position:absolute; bottom:-1px; left:0; width:100%; height:26px; display:block}
+.waves path{fill:var(--sand)}
+
+/* ---------- layout ---------- */
+main{max-width:640px; margin:0 auto; padding:16px 16px 8px}
+section.tab{display:none; animation:fadein .25s ease}
+section.tab.active{display:block}
+@keyframes fadein{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+.card{
+  background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:16px; margin-bottom:14px; border:1px solid var(--line);
+}
+.card h2{font-size:17px; margin-bottom:10px; display:flex; align-items:center; gap:8px}
+.card h2 .emoji{font-size:20px}
+.muted{color:var(--ink-soft); font-size:13.5px}
+.pill{
+  display:inline-block; background:var(--teal-light); color:var(--teal-dark);
+  border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600;
+}
+@media (prefers-color-scheme: dark){ .pill{color:var(--teal)} }
+
+/* ---------- countdown hero ---------- */
+.hero{
+  background:linear-gradient(135deg,var(--sunset) 0%,var(--sunset-deep) 60%,var(--coral) 100%);
+  color:#fff; text-align:center; padding:26px 16px; border:none;
+}
+.hero .big{font-size:52px; font-weight:800; line-height:1}
+.hero .label{font-size:14px; opacity:.92; margin-top:6px; font-weight:600}
+.hero .dates{font-size:13px; opacity:.85; margin-top:8px}
+.hero button{
+  margin-top:12px; background:rgba(255,255,255,.22); border-radius:999px;
+  padding:6px 16px; color:#fff; font-size:13px; font-weight:600;
+}
+
+/* ---------- lists / rows ---------- */
+.row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row .grow{flex:1; min-width:0}
+.row .title{font-size:15px; font-weight:600; overflow-wrap:anywhere}
+.row .note{font-size:12.5px; color:var(--ink-soft)}
+.row.done .title{text-decoration:line-through; opacity:.55}
+.row.done .note{opacity:.55}
+.check{
+  width:24px; height:24px; min-width:24px; border-radius:8px; border:2px solid var(--teal);
+  display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; background:transparent;
+}
+.check.on{background:var(--teal); border-color:var(--teal)}
+.iconbtn{font-size:16px; padding:6px; border-radius:8px; color:var(--ink-soft)}
+.iconbtn:active{background:var(--sand-dark)}
+.time-chip{
+  font-size:11.5px; font-weight:700; color:var(--teal-dark); background:var(--teal-light);
+  border-radius:6px; padding:1px 6px; white-space:nowrap;
+}
+@media (prefers-color-scheme: dark){ .time-chip{color:var(--teal)} }
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  background:var(--teal); color:#fff; border-radius:12px; padding:10px 16px;
+  font-weight:600; font-size:14px; width:100%;
+}
+.btn.secondary{background:var(--sand-dark); color:var(--ink)}
+.btn.small{width:auto; padding:7px 12px; font-size:13px; border-radius:10px}
+.btn:active{transform:scale(.98)}
+
+/* ---------- day tabs / chips ---------- */
+.chips{display:flex; gap:8px; overflow-x:auto; padding:2px 0 12px; scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  white-space:nowrap; background:var(--card); border:1px solid var(--line);
+  border-radius:999px; padding:7px 14px; font-size:13px; font-weight:600; color:var(--ink-soft);
+}
+.chip.active{background:var(--teal); color:#fff; border-color:var(--teal)}
+
+/* ---------- progress ---------- */
+.progress{height:10px; background:var(--sand-dark); border-radius:999px; overflow:hidden; margin:6px 0 4px}
+.progress > div{height:100%; background:linear-gradient(90deg,var(--teal),var(--ok)); border-radius:999px; transition:width .3s ease}
+
+/* ---------- guide cards ---------- */
+.guide-card .head{display:flex; align-items:flex-start; gap:10px}
+.guide-card .icon{font-size:30px; line-height:1.2}
+.guide-card h3{font-size:16px}
+.guide-card .meta{font-size:12px; color:var(--ink-soft); margin-top:1px}
+.guide-card p{font-size:13.5px; margin-top:8px}
+.guide-card .tip{
+  margin-top:10px; font-size:13px; background:var(--teal-light); border-radius:10px;
+  padding:8px 10px; color:var(--teal-dark);
+}
+@media (prefers-color-scheme: dark){ .guide-card .tip{color:var(--teal)} }
+.guide-card .actions{margin-top:10px; display:flex; gap:8px}
+
+/* ---------- budget ---------- */
+.total-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px}
+.total-box{background:var(--sand-dark); border-radius:12px; padding:10px 12px; text-align:center}
+.total-box .amt{font-size:20px; font-weight:800}
+.total-box .lbl{font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.form-grid .full{grid-column:1/-1}
+label.fld{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:3px}
+input.txt, select.txt{
+  width:100%; border:1.5px solid var(--line); background:var(--card); border-radius:10px;
+  padding:9px 11px; font-size:15px; outline:none;
+}
+input.txt:focus, select.txt:focus{border-color:var(--teal)}
+
+/* ---------- essentials accordion ---------- */
+details{border-bottom:1px solid var(--line)}
+details:last-child{border-bottom:none}
+summary{
+  list-style:none; display:flex; align-items:center; gap:10px; padding:12px 0;
+  font-weight:600; font-size:15px; cursor:pointer;
+}
+summary::-webkit-details-marker{display:none}
+summary .emoji{font-size:20px}
+summary::after{content:"›"; margin-left:auto; color:var(--ink-soft); font-size:20px; transition:transform .2s}
+details[open] summary::after{transform:rotate(90deg)}
+details .body{padding:0 0 14px; font-size:14px; color:var(--ink)}
+details .body p{margin-bottom:8px}
+details .body ul{padding-left:18px; margin-bottom:8px}
+details .body li{margin-bottom:4px}
+
+/* ---------- bottom nav ---------- */
+nav{
+  position:fixed; bottom:0; left:0; right:0; background:var(--card);
+  border-top:1px solid var(--line); display:flex; z-index:50;
+  padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -4px 16px rgba(34,51,59,.07);
+}
+nav button{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:9px 2px 7px; font-size:10.5px; font-weight:600; color:var(--ink-soft);
+}
+nav button .ni{font-size:21px; line-height:1}
+nav button.active{color:var(--teal)}
+
+/* ---------- modal ---------- */
+.modal-back{
+  position:fixed; inset:0; background:rgba(10,25,28,.5); z-index:100;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.modal-back.open{display:flex}
+.modal{
+  background:var(--card); width:100%; max-width:640px;
+  border-radius:22px 22px 0 0; padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+  animation:slideup .22s ease; max-height:86vh; overflow-y:auto;
+}
+@keyframes slideup{from{transform:translateY(40px); opacity:.6} to{transform:none; opacity:1}}
+.modal h3{font-size:17px; margin-bottom:14px}
+.modal .btnrow{display:flex; gap:10px; margin-top:16px}
+.modal .btnrow .btn{flex:1}
+
+.empty{padding:18px 8px; text-align:center; color:var(--ink-soft); font-size:14px}
+.toast{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:calc(90px + env(safe-area-inset-bottom));
+  background:var(--ink); color:var(--sand); font-size:13.5px; font-weight:600;
+  padding:9px 16px; border-radius:999px; z-index:200; opacity:0; pointer-events:none;
+  transition:opacity .25s ease; box-shadow:var(--shadow); max-width:88%; text-align:center;
+}
+.toast.show{opacity:1}
+.addline{display:flex; gap:8px; margin-top:12px}
+.addline input{flex:1}
+.sectionhint{font-size:12px; color:var(--ink-soft); margin:-6px 0 12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="palm">🌴</div>
+  <div class="eyebrow">Holiday Companion</div>
+  <h1 id="hdr-title">Cassia Bintan</h1>
+  <div class="sub">Laguna Bintan · Indonesia · GMT+7</div>
+  <svg class="waves" viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,32 C240,64 480,0 720,24 C960,48 1200,10 1440,36 L1440,60 L0,60 Z"/></svg>
+</header>
+
+<main>
+
+<!-- ============ HOME ============ -->
+<section class="tab active" id="tab-home">
+  <div class="card hero" id="hero"></div>
+
+  <div class="card" id="today-card"></div>
+
+  <div class="card">
+    <h2><span class="emoji">🌤️</span> Island weather, typically</h2>
+    <p class="muted">Bintan is warm all year: <strong>26–32°C</strong>, sea around 29°C. Short tropical showers pass quickly — mornings are usually the sunniest. Sunset is around <strong>6:10 pm</strong>. Sunscreen from breakfast onwards!</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="emoji">✨</span> Trip snapshot</h2>
+    <div id="snapshot"></div>
+    <button class="btn secondary" style="margin-top:12px" onclick="openTripModal()">Edit trip details</button>
+  </div>
+</section>
+
+<!-- ============ ITINERARY ============ -->
+<section class="tab" id="tab-itin">
+  <div class="chips" id="day-chips"></div>
+  <div class="card" id="day-card"></div>
+</section>
+
+<!-- ============ EXPLORE ============ -->
+<section class="tab" id="tab-explore">
+  <div class="chips" id="explore-chips"></div>
+  <div id="explore-list"></div>
+</section>
+
+<!-- ============ PACKING ============ -->
+<section class="tab" id="tab-pack">
+  <div class="card">
+    <h2><span class="emoji">🧳</span> Packing progress</h2>
+    <div class="progress"><div id="pack-bar" style="width:0%"></div></div>
+    <div class="muted" id="pack-count"></div>
+  </div>
+  <div id="pack-groups"></div>
+</section>
+
+<!-- ============ BUDGET ============ -->
+<section class="tab" id="tab-budget">
+  <div class="card">
+    <h2><span class="emoji">💰</span> Spending so far</h2>
+    <div class="total-grid">
+      <div class="total-box"><div class="amt" id="tot-sgd">S$0</div><div class="lbl">Total SGD</div></div>
+      <div class="total-box"><div class="amt" id="tot-idr">Rp 0</div><div class="lbl">≈ Rupiah</div></div>
+    </div>
+    <p class="muted" id="rate-line"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="emoji">🧾</span> Add an expense</h2>
+    <div class="form-grid">
+      <div class="full"><label class="fld">What was it?</label><input class="txt" id="exp-desc" placeholder="e.g. Kelong seafood dinner"></div>
+      <div><label class="fld">Amount</label><input class="txt" id="exp-amt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+      <div><label class="fld">Currency</label><select class="txt" id="exp-cur"><option value="SGD">SGD</option><option value="IDR">IDR</option></select></div>
+      <div class="full"><label class="fld">Category</label><select class="txt" id="exp-cat">
+        <option>🍽️ Food &amp; drinks</option><option>🏝️ Activities</option><option>🚕 Transport</option>
+        <option>💆 Spa &amp; wellness</option><option>🛍️ Shopping</option><option>📦 Other</option>
+      </select></div>
+      <div class="full"><button class="btn" onclick="addExpense()">Add expense</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="emoji">🔁</span> Quick converter</h2>
+    <div class="form-grid">
+      <div><label class="fld">SGD</label><input class="txt" id="cv-sgd" type="number" inputmode="decimal" placeholder="10"></div>
+      <div><label class="fld">IDR</label><input class="txt" id="cv-idr" type="number" inputmode="decimal" placeholder="120000"></div>
+      <div class="full"><label class="fld">Rate (IDR per 1 SGD)</label><input class="txt" id="cv-rate" type="number" inputmode="decimal"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="emoji">📒</span> Expense log</h2>
+    <div id="exp-list"></div>
+  </div>
+</section>
+
+<!-- ============ ESSENTIALS ============ -->
+<section class="tab" id="tab-info">
+  <div class="card">
+    <h2><span class="emoji">🛟</span> Good to know</h2>
+    <div id="info-list"></div>
+  </div>
+  <p class="muted" style="text-align:center; padding:4px 12px 12px">
+    Everything in this app works offline once loaded. Details like ferry times and prices can change — double-check anything time-critical before you rely on it. Have the best holiday! 🌺
+  </p>
+</section>
+
+</main>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <button data-tab="home" class="active"><span class="ni">🏝️</span>Home</button>
+  <button data-tab="itin"><span class="ni">🗓️</span>Days</button>
+  <button data-tab="explore"><span class="ni">🧭</span>Explore</button>
+  <button data-tab="pack"><span class="ni">🧳</span>Pack</button>
+  <button data-tab="budget"><span class="ni">💰</span>Budget</button>
+  <button data-tab="info"><span class="ni">🛟</span>Info</button>
+</nav>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-back" id="modal-back">
+  <div class="modal" id="modal-body"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Cassia Bintan Holiday Companion — all state lives in localStorage.
+   ===================================================================== */
+const LS_KEY = "cassia-bintan-app-v1";
+
+/* ---------- default state ---------- */
+function defaultStart(){
+  // Default: a Friday roughly 4 weeks out; user edits to real dates.
+  const d = new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 28);
+  while (d.getDay() !== 5) d.setDate(d.getDate() + 1);
+  return iso(d);
+}
+function iso(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+function fromIso(s){ const [y,m,dd] = s.split("-").map(Number); return new Date(y, m-1, dd); }
+
+function newId(){ return "id" + Math.random().toString(36).slice(2,9); }
+
+/* Suggested day plans, assigned by position in the trip. */
+const DAY_TEMPLATES = {
+  arrival: { label:"Arrival day", items:[
+    ["","Ferry from Tanah Merah → Bandar Bentan Telani (~60 min)", "Passports + ferry tickets ready. Bintan is 1 hr behind Singapore."],
+    ["","Resort shuttle to Cassia Bintan & check-in", "Ask about the week's activity schedule at reception."],
+    ["17:30","Golden-hour walk on the beach", "Perfect first-evening reset."],
+    ["19:00","Easy dinner at the resort", "Book Kelong Seafood for another night while you're at it."],
+  ]},
+  beach: { label:"Beach & pool day", items:[
+    ["09:00","Slow breakfast, then claim a spot by the pool",""],
+    ["11:00","Swim & beach games", "Sea is calmest in the morning."],
+    ["15:00","Try a water sport", "Kayak, paddleboard or a banana-boat ride from the watersports centre."],
+    ["18:00","Sunset drinks", "The beach bar at golden hour is the move."],
+  ]},
+  adventure: { label:"Adventure day", items:[
+    ["09:30","Mangrove river tour on the Sebung", "Keep eyes peeled for kingfishers, monitor lizards and silver-leaf monkeys."],
+    ["13:00","Lunch at a local warung", "Try nasi goreng kampung or ikan bakar."],
+    ["15:30","ATV ride or a round at Laguna Golf", ""],
+    ["19:30","Kelong Seafood dinner over the water", "Chilli crab + sea breeze = core memory."],
+  ]},
+  spa: { label:"Slow & spa day", items:[
+    ["09:30","Lazy morning — room coffee on the balcony",""],
+    ["11:00","Banyan Tree Spa treatment", "Book 1–2 days ahead; couples rooms go fast."],
+    ["14:00","Long lunch, then a good book somewhere shady",""],
+    ["17:00","Chill Cove / Treasure Bay lagoon visit", "Crystal-clear swimmable lagoon, fun for an hour or three."],
+  ]},
+  departure: { label:"Departure day", items:[
+    ["","One last swim & breakfast", ""],
+    ["","Pack + check out", "Leave time — ferry check-in closes ~1 hr before sailing."],
+    ["","Shuttle to BBT terminal, browse Pasar Oleh-Oleh", "Grab kueh lapis or coffee as gifts."],
+    ["","Ferry back to Singapore", "You gain the hour back crossing over. 💙"],
+  ]},
+};
+
+function planForDay(i, total){
+  if (i === 0) return DAY_TEMPLATES.arrival;
+  if (i === total - 1 && total > 1) return DAY_TEMPLATES.departure;
+  const middle = [DAY_TEMPLATES.beach, DAY_TEMPLATES.adventure, DAY_TEMPLATES.spa];
+  return middle[(i - 1) % middle.length];
+}
+
+function seedItinerary(startIso, endIso){
+  const total = tripDayCount(startIso, endIso);
+  const days = [];
+  for (let i = 0; i < total; i++){
+    const tpl = planForDay(i, total);
+    days.push({
+      label: tpl.label,
+      items: tpl.items.map(([time, title, note]) => ({ id:newId(), time, title, note, done:false })),
+    });
+  }
+  return days;
+}
+
+const PACK_SEED = [
+  ["📄 Documents", ["Passports (6+ months validity)","Ferry tickets / booking confirmations","Travel insurance details","Some cash — SGD & small IDR notes","Credit/debit card"]],
+  ["👙 Beach", ["Swimwear ×2","Rash vest / swim shirts","Beach hats","Sunglasses","Reef-safe sunscreen SPF50","Flip flops / sandals","Beach bag","Goggles / snorkel set"]],
+  ["👕 Clothes", ["Light tops & shorts","One nicer dinner outfit","Light rain jacket / poncho","Sleepwear","Underwear & socks","Comfy walking shoes"]],
+  ["💊 Health", ["Insect repellent (DEET)","After-sun / aloe vera","Paracetamol & basics kit","Motion-sickness tablets (ferry)","Plasters","Hand sanitiser","Any prescriptions"]],
+  ["🔌 Tech", ["Phone chargers","Power bank","Universal adapter (type C/F)","Kindle / book","Headphones","Waterproof phone pouch"]],
+];
+
+function seedPacking(){
+  const out = [];
+  for (const [cat, items] of PACK_SEED)
+    for (const label of items) out.push({ id:newId(), cat, label, checked:false });
+  return out;
+}
+
+function freshState(){
+  const start = defaultStart();
+  const end = iso(new Date(fromIso(start).getTime() + 4*864e5));
+  return {
+    version: 1,
+    trip: { name:"Cassia Bintan Escape", start, end, travellers:2 },
+    itinerary: seedItinerary(start, end),
+    packing: seedPacking(),
+    expenses: [],
+    settings: { rate: 12200 },
+  };
+}
+
+/* ---------- persistence ---------- */
+let S;
+try { S = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e){ S = null; }
+if (!S || S.version !== 1) { S = freshState(); save(); }
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+
+/* ---------- helpers ---------- */
+function tripDayCount(a, b){
+  return Math.max(1, Math.round((fromIso(b) - fromIso(a)) / 864e5) + 1);
+}
+function dayDate(i){ return new Date(fromIso(S.trip.start).getTime() + i*864e5); }
+function fmtDate(d, opts){ return d.toLocaleDateString("en-AU", opts || { weekday:"short", day:"numeric", month:"short" }); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function fmtSGD(n){ return "S$" + n.toLocaleString("en-SG", {maximumFractionDigits:2}); }
+function fmtIDR(n){ return "Rp " + Math.round(n).toLocaleString("id-ID"); }
+
+/* Keep itinerary length in sync when trip dates change (preserve edits). */
+function resizeItinerary(){
+  const total = tripDayCount(S.trip.start, S.trip.end);
+  while (S.itinerary.length < total){
+    const i = S.itinerary.length;
+    const tpl = planForDay(Math.min(i, 1) === 0 ? 0 : i, total);
+    S.itinerary.push({ label: tpl.label, items: tpl.items.map(([time,title,note]) => ({id:newId(), time, title, note, done:false})) });
+  }
+  if (S.itinerary.length > total) S.itinerary.length = total;
+}
+
+/* ---------- tabs ---------- */
+const tabs = ["home","itin","explore","pack","budget","info"];
+function showTab(name){
+  tabs.forEach(t => {
+    document.getElementById("tab-" + t).classList.toggle("active", t === name);
+  });
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  window.scrollTo({top:0});
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+/* =====================================================================
+   HOME
+   ===================================================================== */
+function renderHome(){
+  const now = new Date(); now.setHours(0,0,0,0);
+  const start = fromIso(S.trip.start), end = fromIso(S.trip.end);
+  const total = tripDayCount(S.trip.start, S.trip.end);
+  const hero = document.getElementById("hero");
+  const dateRange = fmtDate(start, {day:"numeric", month:"long"}) + " – " + fmtDate(end, {day:"numeric", month:"long", year:"numeric"});
+
+  let big, label;
+  if (now < start){
+    const days = Math.round((start - now)/864e5);
+    big = days; label = days === 1 ? "sleep to paradise 🌅" : "sleeps to paradise 🌅";
+  } else if (now <= end){
+    const dayN = Math.round((now - start)/864e5) + 1;
+    big = "Day " + dayN; label = "of " + total + " — you're on the island! 🏝️";
+  } else {
+    big = "🫶"; label = "Trip complete — what a holiday. Plan the next one?";
+  }
+  hero.innerHTML =
+    '<div class="big">' + big + '</div>' +
+    '<div class="label">' + label + '</div>' +
+    '<div class="dates">' + esc(S.trip.name) + " · " + dateRange + '</div>' +
+    '<button onclick="openTripModal()">✏️ Edit dates</button>';
+
+  // Today / next-up card
+  const tc = document.getElementById("today-card");
+  let dayIdx = null;
+  if (now >= start && now <= end) dayIdx = Math.round((now - start)/864e5);
+  if (dayIdx !== null && S.itinerary[dayIdx]){
+    const d = S.itinerary[dayIdx];
+    const pending = d.items.filter(i => !i.done);
+    tc.innerHTML = '<h2><span class="emoji">📍</span> Today: ' + esc(d.label) + '</h2>' +
+      (pending.length
+        ? pending.slice(0,4).map(i =>
+            '<div class="row">' + (i.time ? '<span class="time-chip">' + esc(i.time) + '</span>' : '') +
+            '<div class="grow"><div class="title">' + esc(i.title) + '</div></div></div>').join("")
+        : '<p class="muted">Everything ticked off — freestyle time! 🍹') +
+      '<button class="btn secondary" style="margin-top:12px" onclick="showTab(\'itin\'); selectDay(' + dayIdx + ')">Open today\'s plan</button>';
+  } else {
+    const d0 = S.itinerary[0];
+    tc.innerHTML = '<h2><span class="emoji">🗓️</span> First up: ' + esc(d0 ? d0.label : "Arrival") + '</h2>' +
+      '<p class="muted">Your day-by-day plan is ready — pre-filled with the good stuff and fully editable.</p>' +
+      '<button class="btn secondary" style="margin-top:12px" onclick="showTab(\'itin\')">View itinerary</button>';
+  }
+
+  // Snapshot
+  const packed = S.packing.filter(p => p.checked).length;
+  const spentSGD = S.expenses.reduce((a,e) => a + (e.cur === "SGD" ? e.amt : e.amt / S.settings.rate), 0);
+  document.getElementById("snapshot").innerHTML =
+    '<div class="row"><div class="grow"><div class="title">🗓️ ' + total + ' days · ' + (total-1) + ' nights</div><div class="note">' + dateRange + '</div></div></div>' +
+    '<div class="row"><div class="grow"><div class="title">🧑‍🤝‍🧑 ' + S.trip.travellers + ' traveller' + (S.trip.travellers === 1 ? "" : "s") + '</div><div class="note">Cassia Bintan, Laguna Bintan estate</div></div></div>' +
+    '<div class="row"><div class="grow"><div class="title">🧳 ' + packed + ' / ' + S.packing.length + ' packed</div><div class="note">💰 ' + fmtSGD(spentSGD) + ' spent so far</div></div></div>';
+
+  document.getElementById("hdr-title").textContent = "Cassia Bintan";
+}
+
+/* ---------- trip modal ---------- */
+function openTripModal(){
+  openModal(
+    '<h3>✏️ Trip details</h3>' +
+    '<div class="form-grid">' +
+    '<div class="full"><label class="fld">Trip name</label><input class="txt" id="m-name" value="' + esc(S.trip.name) + '"></div>' +
+    '<div><label class="fld">First day</label><input class="txt" id="m-start" type="date" value="' + S.trip.start + '"></div>' +
+    '<div><label class="fld">Last day</label><input class="txt" id="m-end" type="date" value="' + S.trip.end + '"></div>' +
+    '<div><label class="fld">Travellers</label><input class="txt" id="m-trav" type="number" min="1" max="20" value="' + S.trip.travellers + '"></div>' +
+    '</div>' +
+    '<div class="btnrow"><button class="btn secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn" onclick="saveTrip()">Save</button></div>'
+  );
+}
+function saveTrip(){
+  const name = document.getElementById("m-name").value.trim() || "Cassia Bintan Escape";
+  let start = document.getElementById("m-start").value;
+  let end = document.getElementById("m-end").value;
+  const trav = Math.max(1, parseInt(document.getElementById("m-trav").value, 10) || 1);
+  if (!start || !end) { toast("Please pick both dates"); return; }
+  if (fromIso(end) < fromIso(start)) [start, end] = [end, start];
+  Object.assign(S.trip, { name, start, end, travellers: trav });
+  resizeItinerary();
+  save(); closeModal(); renderAll(); toast("Trip updated ✔");
+}
+
+/* =====================================================================
+   ITINERARY
+   ===================================================================== */
+let curDay = 0;
+function selectDay(i){ curDay = i; renderItin(); }
+function renderItin(){
+  const total = S.itinerary.length;
+  if (curDay >= total) curDay = 0;
+  document.getElementById("day-chips").innerHTML = S.itinerary.map((d, i) =>
+    '<button class="chip' + (i === curDay ? " active" : "") + '" onclick="selectDay(' + i + ')">Day ' + (i+1) +
+    ' · ' + fmtDate(dayDate(i), {weekday:"short"}) + '</button>').join("");
+
+  const d = S.itinerary[curDay];
+  const dateStr = fmtDate(dayDate(curDay), {weekday:"long", day:"numeric", month:"long"});
+  document.getElementById("day-card").innerHTML =
+    '<h2><span class="emoji">🗓️</span> <span onclick="editDayLabel()" style="cursor:pointer">' + esc(d.label) + ' <span style="font-size:12px; opacity:.5">✏️</span></span></h2>' +
+    '<p class="sectionhint">' + dateStr + ' · tap ✏️ to rename the day</p>' +
+    (d.items.length ? d.items.map((it, idx) =>
+      '<div class="row' + (it.done ? " done" : "") + '">' +
+        '<button class="check' + (it.done ? " on" : "") + '" onclick="toggleItin(' + idx + ')">' + (it.done ? "✓" : "") + '</button>' +
+        (it.time ? '<span class="time-chip">' + esc(it.time) + '</span>' : '') +
+        '<div class="grow"><div class="title">' + esc(it.title) + '</div>' +
+        (it.note ? '<div class="note">' + esc(it.note) + '</div>' : '') + '</div>' +
+        '<button class="iconbtn" onclick="openItinModal(' + idx + ')" aria-label="Edit">✏️</button>' +
+        '<button class="iconbtn" onclick="delItin(' + idx + ')" aria-label="Delete">🗑️</button>' +
+      '</div>').join("") : '<div class="empty">Nothing planned yet — a perfect beach day, or add something below 🏖️</div>') +
+    '<button class="btn" style="margin-top:14px" onclick="openItinModal(-1)">＋ Add to this day</button>';
+}
+function toggleItin(idx){ const it = S.itinerary[curDay].items[idx]; it.done = !it.done; save(); renderItin(); renderHome(); }
+function delItin(idx){ S.itinerary[curDay].items.splice(idx,1); save(); renderItin(); renderHome(); toast("Removed"); }
+function editDayLabel(){
+  const v = prompt("Name this day:", S.itinerary[curDay].label);
+  if (v !== null){ S.itinerary[curDay].label = v.trim() || S.itinerary[curDay].label; save(); renderItin(); }
+}
+function openItinModal(idx){
+  const it = idx >= 0 ? S.itinerary[curDay].items[idx] : { time:"", title:"", note:"" };
+  openModal(
+    '<h3>' + (idx >= 0 ? "✏️ Edit activity" : "＋ Add activity") + '</h3>' +
+    '<div class="form-grid">' +
+    '<div class="full"><label class="fld">Activity</label><input class="txt" id="m-title" value="' + esc(it.title) + '" placeholder="e.g. Sunset kayak"></div>' +
+    '<div><label class="fld">Time (optional)</label><input class="txt" id="m-time" value="' + esc(it.time) + '" placeholder="e.g. 16:30"></div>' +
+    '<div class="full"><label class="fld">Note (optional)</label><input class="txt" id="m-note" value="' + esc(it.note) + '" placeholder="Booking ref, tips…"></div>' +
+    '</div>' +
+    '<div class="btnrow"><button class="btn secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn" onclick="saveItin(' + idx + ')">Save</button></div>'
+  );
+  setTimeout(() => document.getElementById("m-title").focus(), 120);
+}
+function saveItin(idx){
+  const title = document.getElementById("m-title").value.trim();
+  if (!title){ toast("Give it a name first"); return; }
+  const time = document.getElementById("m-time").value.trim();
+  const note = document.getElementById("m-note").value.trim();
+  if (idx >= 0) Object.assign(S.itinerary[curDay].items[idx], { title, time, note });
+  else S.itinerary[curDay].items.push({ id:newId(), title, time, note, done:false });
+  save(); closeModal(); renderItin(); renderHome();
+}
+
+/* =====================================================================
+   EXPLORE GUIDE
+   ===================================================================== */
+const GUIDE = [
+  { cat:"Resort", icon:"🏊", name:"Cassia pools & beach", meta:"On your doorstep · free",
+    desc:"Cassia's pool deck and the long white-sand Laguna Bintan beach are steps away. Mornings are quietest; the sea is warm and gentle inside the bay.",
+    tip:"Grab pool towels early on weekends — Singapore day-trippers arrive by ~11am." },
+  { cat:"Resort", icon:"🚣", name:"Watersports centre", meta:"On the beach · $–$$",
+    desc:"Kayaks, stand-up paddleboards, banana boats and sailing off the resort beach. Non-motorised gear is often included or cheap for guests.",
+    tip:"Wind picks up after lunch — paddleboard in the morning, sail in the afternoon." },
+  { cat:"Resort", icon:"🎉", name:"Daily activity schedule", meta:"Resort-wide · mostly free",
+    desc:"The Laguna Bintan estate runs a rotating schedule: aqua aerobics, beach volleyball, batik painting, cooking demos, kids' club sessions.",
+    tip:"Photograph the weekly schedule board at check-in so it's always in your pocket." },
+  { cat:"Eat & drink", icon:"🦀", name:"Kelong Seafood Restaurant", meta:"Banyan Tree jetty · $$$",
+    desc:"Chilli crab, butter prawns and whole grilled fish in a stilted kelong over the water. The signature dinner of the whole estate.",
+    tip:"Book a sunset-time table 1–2 days ahead and ask for the outer rail seats." },
+  { cat:"Eat & drink", icon:"🍛", name:"Saffron", meta:"Banyan Tree · $$$",
+    desc:"Banyan Tree's elegant Thai fine-dining restaurant up in the treetops — a great 'one fancy night' pick.",
+    tip:"Go before sunset for the view down the coastline, stay for the tasting menu." },
+  { cat:"Eat & drink", icon:"🍕", name:"The Cove & casual estate dining", meta:"Laguna estate · $$",
+    desc:"Relaxed Italian and all-day dining options shared across the estate, plus in-villa/room dining at Cassia when the beach has worn everyone out.",
+    tip:"Cassia rooms have kitchenettes — grab snacks and breakfast bits from the estate deli." },
+  { cat:"Eat & drink", icon:"🍜", name:"Warungs at Pasar Oleh-Oleh", meta:"Near ferry terminal · $",
+    desc:"The little market village near BBT terminal has cheap, tasty local food — nasi goreng, mee rebus, sate — plus souvenir stalls.",
+    tip:"Perfect pre-ferry lunch on departure day. Pay in rupiah for the best prices." },
+  { cat:"Adventures", icon:"🛶", name:"Sebung mangrove river tour", meta:"~45 min away · $$",
+    desc:"Glide through dense mangroves spotting kingfishers, mudskippers, monitor lizards and snakes snoozing in the branches. Night tours swap wildlife for fireflies.",
+    tip:"The evening firefly tour is magical — book through the concierge a day ahead." },
+  { cat:"Adventures", icon:"🏌️", name:"Laguna Golf Bintan", meta:"On the estate · $$$",
+    desc:"An 18-hole Greg Norman–designed course weaving along the sea. Club and shoe hire available.",
+    tip:"Book a twilight tee time — cooler air, golden light, better rates." },
+  { cat:"Adventures", icon:"🏎️", name:"ATV & off-road", meta:"Estate activities · $$",
+    desc:"Guided quad-bike trails through plantations and jungle tracks behind the resorts. Beginner friendly.",
+    tip:"Wear shoes you don't love and take the GoPro." },
+  { cat:"Adventures", icon:"🌊", name:"Treasure Bay / Chill Cove", meta:"~15 min taxi · $$",
+    desc:"South-East Asia's largest crystal lagoon: swimming, cable wakeboarding, glamping vibes, evening lights.",
+    tip:"Late afternoon entry catches both swim time and the sunset colours." },
+  { cat:"Wellness", icon:"💆", name:"Banyan Tree Spa", meta:"Next door · $$$",
+    desc:"One of Asia's great spas — rainmist rooms, couples suites, Thai and Indonesian massage traditions in hillside pavilions above the sea.",
+    tip:"Book on arrival day for mid-trip; ask about Cassia-guest rates." },
+  { cat:"Wellness", icon:"🧘", name:"Sunrise yoga & beach walks", meta:"Free",
+    desc:"The estate often runs morning yoga; otherwise the beach at 7am is empty, cool and glorious. Bintan sunrises earn the alarm.",
+    tip:"Walk the full curve of the bay before breakfast — about 40 unhurried minutes." },
+  { cat:"Day trips", icon:"⛵", name:"Snorkelling & White Sands Island", meta:"Boat trip · $$$",
+    desc:"Boat trips run to sandbars and tiny islands off the east coast with clearer water and picnic set-ups.",
+    tip:"Sea is calmest March–October; confirm conditions with the concierge." },
+  { cat:"Day trips", icon:"🏮", name:"Tanjung Pinang & Senggarang", meta:"~1 hr away · $$",
+    desc:"Bintan's real-life capital: a buzzing market town, plus the stilted Chinese temple village of Senggarang and 500 Lohan Temple's thousand statues.",
+    tip:"Go with a driver booked through the concierge; mornings are cooler for wandering." },
+];
+const GUIDE_CATS = ["All","Resort","Eat & drink","Adventures","Wellness","Day trips"];
+let curCat = "All";
+function renderExplore(){
+  document.getElementById("explore-chips").innerHTML = GUIDE_CATS.map(c =>
+    '<button class="chip' + (c === curCat ? " active" : "") + '" onclick="curCat=\'' + c.replace(/'/g,"\\'") + '\'; renderExplore()">' + c + '</button>').join("");
+  const list = GUIDE.filter(g => curCat === "All" || g.cat === curCat);
+  document.getElementById("explore-list").innerHTML = list.map((g) => {
+    const gi = GUIDE.indexOf(g);
+    return '<div class="card guide-card">' +
+      '<div class="head"><div class="icon">' + g.icon + '</div><div>' +
+      '<h3>' + esc(g.name) + '</h3><div class="meta">' + esc(g.cat) + " · " + esc(g.meta) + '</div></div></div>' +
+      '<p>' + esc(g.desc) + '</p>' +
+      '<div class="tip">💡 ' + esc(g.tip) + '</div>' +
+      '<div class="actions"><button class="btn small" onclick="addGuideToItin(' + gi + ')">＋ Add to itinerary</button></div>' +
+      '</div>';
+  }).join("");
+}
+function addGuideToItin(gi){
+  const g = GUIDE[gi];
+  const opts = S.itinerary.map((d, i) =>
+    '<option value="' + i + '">Day ' + (i+1) + ' · ' + fmtDate(dayDate(i)) + ' — ' + esc(d.label) + '</option>').join("");
+  openModal(
+    '<h3>＋ Add “' + esc(g.name) + '” to…</h3>' +
+    '<label class="fld">Which day?</label><select class="txt" id="m-day">' + opts + '</select>' +
+    '<div class="btnrow"><button class="btn secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn" onclick="confirmGuideAdd(' + gi + ')">Add it</button></div>'
+  );
+}
+function confirmGuideAdd(gi){
+  const g = GUIDE[gi];
+  const day = parseInt(document.getElementById("m-day").value, 10) || 0;
+  S.itinerary[day].items.push({ id:newId(), time:"", title:g.icon + " " + g.name, note:g.tip, done:false });
+  save(); closeModal(); toast("Added to Day " + (day+1) + " ✔");
+  renderItin(); renderHome();
+}
+
+/* =====================================================================
+   PACKING
+   ===================================================================== */
+function renderPack(){
+  const total = S.packing.length, done = S.packing.filter(p => p.checked).length;
+  document.getElementById("pack-bar").style.width = (total ? Math.round(done/total*100) : 0) + "%";
+  document.getElementById("pack-count").textContent = done + " of " + total + " packed" + (done === total && total > 0 ? " — ready to go! 🎉" : "");
+
+  const cats = [...new Set(S.packing.map(p => p.cat))];
+  document.getElementById("pack-groups").innerHTML = cats.map(cat => {
+    const items = S.packing.filter(p => p.cat === cat);
+    return '<div class="card"><h2>' + esc(cat) + ' <span class="pill">' + items.filter(i=>i.checked).length + '/' + items.length + '</span></h2>' +
+      items.map(p =>
+        '<div class="row' + (p.checked ? " done" : "") + '">' +
+        '<button class="check' + (p.checked ? " on" : "") + '" onclick="togglePack(\'' + p.id + '\')">' + (p.checked ? "✓" : "") + '</button>' +
+        '<div class="grow"><div class="title">' + esc(p.label) + '</div></div>' +
+        '<button class="iconbtn" onclick="delPack(\'' + p.id + '\')" aria-label="Delete">🗑️</button></div>').join("") +
+      '<div class="addline"><input class="txt" id="add-' + cssId(cat) + '" placeholder="Add item…" onkeydown="if(event.key===\'Enter\')addPack(\'' + esc(cat).replace(/'/g,"\\'") + '\')">' +
+      '<button class="btn small" onclick="addPack(\'' + esc(cat).replace(/'/g,"\\'") + '\')">Add</button></div></div>';
+  }).join("");
+}
+function cssId(s){ return s.replace(/[^a-z0-9]/gi, ""); }
+function togglePack(id){ const p = S.packing.find(x => x.id === id); if (p){ p.checked = !p.checked; save(); renderPack(); renderHome(); } }
+function delPack(id){ S.packing = S.packing.filter(x => x.id !== id); save(); renderPack(); renderHome(); }
+function addPack(cat){
+  const inp = document.getElementById("add-" + cssId(cat));
+  const v = inp.value.trim(); if (!v) return;
+  S.packing.push({ id:newId(), cat, label:v, checked:false });
+  inp.value = ""; save(); renderPack(); renderHome();
+}
+
+/* =====================================================================
+   BUDGET
+   ===================================================================== */
+function renderBudget(){
+  const rate = S.settings.rate;
+  const totSGD = S.expenses.reduce((a,e) => a + (e.cur === "SGD" ? e.amt : e.amt / rate), 0);
+  document.getElementById("tot-sgd").textContent = fmtSGD(totSGD);
+  document.getElementById("tot-idr").textContent = fmtIDR(totSGD * rate);
+  const perHead = S.trip.travellers > 0 ? totSGD / S.trip.travellers : totSGD;
+  document.getElementById("rate-line").textContent =
+    "≈ " + fmtSGD(perHead) + " per traveller · rate: 1 SGD = " + rate.toLocaleString("id-ID") + " IDR (edit below)";
+  document.getElementById("cv-rate").value = rate;
+
+  document.getElementById("exp-list").innerHTML = S.expenses.length
+    ? S.expenses.slice().reverse().map(e =>
+        '<div class="row"><div class="grow"><div class="title">' + esc(e.desc) + '</div>' +
+        '<div class="note">' + esc(e.cat) + " · " + esc(e.when) + '</div></div>' +
+        '<div style="font-weight:700; white-space:nowrap">' + (e.cur === "SGD" ? fmtSGD(e.amt) : fmtIDR(e.amt)) + '</div>' +
+        '<button class="iconbtn" onclick="delExpense(\'' + e.id + '\')" aria-label="Delete">🗑️</button></div>').join("")
+    : '<div class="empty">No expenses yet — the best kind of budget 💸</div>';
+}
+function addExpense(){
+  const desc = document.getElementById("exp-desc").value.trim();
+  const amt = parseFloat(document.getElementById("exp-amt").value);
+  if (!desc || !(amt > 0)){ toast("Add a description and amount"); return; }
+  S.expenses.push({
+    id:newId(), desc, amt,
+    cur: document.getElementById("exp-cur").value,
+    cat: document.getElementById("exp-cat").value,
+    when: new Date().toLocaleDateString("en-AU", {day:"numeric", month:"short"}),
+  });
+  document.getElementById("exp-desc").value = ""; document.getElementById("exp-amt").value = "";
+  save(); renderBudget(); renderHome(); toast("Expense added ✔");
+}
+function delExpense(id){ S.expenses = S.expenses.filter(e => e.id !== id); save(); renderBudget(); renderHome(); }
+
+/* converter */
+document.getElementById("cv-sgd").addEventListener("input", e => {
+  const v = parseFloat(e.target.value);
+  document.getElementById("cv-idr").value = isFinite(v) ? Math.round(v * S.settings.rate) : "";
+});
+document.getElementById("cv-idr").addEventListener("input", e => {
+  const v = parseFloat(e.target.value);
+  document.getElementById("cv-sgd").value = isFinite(v) ? (v / S.settings.rate).toFixed(2) : "";
+});
+document.getElementById("cv-rate").addEventListener("change", e => {
+  const v = parseFloat(e.target.value);
+  if (v > 0){ S.settings.rate = v; save(); renderBudget(); toast("Rate updated"); }
+});
+
+/* =====================================================================
+   ESSENTIALS
+   ===================================================================== */
+const INFO = [
+  ["⛴️","Getting there: the ferry", `
+    <p><strong>Route:</strong> Tanah Merah Ferry Terminal (Singapore) → Bandar Bentan Telani (BBT), Bintan. Crossing takes about <strong>60 minutes</strong> with Bintan Resort Ferries.</p>
+    <ul>
+      <li>Check in <strong>at least 60–90 minutes</strong> before sailing — counters close early.</li>
+      <li>Cassia/Laguna Bintan resorts run a shuttle from BBT (~15 min). Confirm pickup with the resort.</li>
+      <li>Prone to seasickness? Sit mid-ship, lower deck, and take tablets 30 min before boarding.</li>
+    </ul>`],
+  ["🕐","Time zone", `
+    <p>Bintan runs on <strong>Western Indonesia Time (GMT+7)</strong> — one hour <strong>behind</strong> Singapore. Phones sometimes cling to Singapore towers near the coast, so double-check before ferry day. Ferry timetables are usually printed in local time for each departure port.</p>`],
+  ["🛂","Passports & visa", `
+    <p>Most visitors get an Indonesian <strong>visa on arrival</strong> (or visa-free entry depending on nationality) at BBT. Passports need <strong>6+ months validity</strong> and a blank page.</p>
+    <ul><li>Australians: visa on arrival (~IDR 500,000), payable by card, or arrange the e-VOA online beforehand to skip the queue.</li>
+    <li>Complete Indonesia's e-customs declaration (e-CD) online before arrival if prompted.</li></ul>`],
+  ["💵","Money", `
+    <p>Currency is the <strong>Indonesian Rupiah (IDR)</strong>, but the resort area happily bills in SGD and takes cards everywhere.</p>
+    <ul>
+      <li>Carry some small IDR notes for warungs, markets and tips.</li>
+      <li>Tipping isn't compulsory; IDR 20–50k for great service or a driver is generous and appreciated.</li>
+      <li>ATMs exist at the ferry terminal and Pasar Oleh-Oleh.</li>
+    </ul>`],
+  ["🔌","Power & connectivity", `
+    <p>Indonesia uses <strong>type C/F plugs, 230V</strong> (European two-round-pin). Resort wifi covers rooms and public areas; mobile roaming works but can silently hop to Singapore networks near the coast — watch the roaming charges.</p>`],
+  ["🏥","Health & safety", `
+    <p>No special vaccinations required for Bintan resort stays; standard travel cover is a must.</p>
+    <ul>
+      <li>Mosquitoes appear at dusk — repellent on ankles from 5pm.</li>
+      <li>Drink bottled/filtered water; ice at the resorts is fine.</li>
+      <li>The estate has a clinic; the nearest hospital is in Tanjung Pinang (~1 hr).</li>
+      <li><strong>Emergency numbers (Indonesia):</strong> ambulance <strong>118</strong>, police <strong>110</strong>, general <strong>112</strong>.</li>
+    </ul>`],
+  ["🏨","Resort cheat-sheet", `
+    <ul>
+      <li>Cassia Bintan sits inside the <strong>Laguna Bintan estate</strong>, sharing beach and facilities with Banyan Tree and Angsana — guests can dine and play across all three.</li>
+      <li>Rooms have <strong>kitchenettes</strong> — the estate mini-mart/deli covers snacks, drinks and breakfast bits.</li>
+      <li>Check-in is typically 3pm, check-out 12pm; ask about late check-out on ferry day.</li>
+      <li>Book spa, Kelong dinner and tours through the <strong>concierge on day one</strong> — the good slots go fast.</li>
+    </ul>`],
+  ["🗣️","Handy Bahasa Indonesia", `
+    <ul>
+      <li><strong>Terima kasih</strong> — thank you · <strong>Sama-sama</strong> — you're welcome</li>
+      <li><strong>Selamat pagi / siang / malam</strong> — good morning / afternoon / evening</li>
+      <li><strong>Enak!</strong> — delicious! · <strong>Berapa harganya?</strong> — how much?</li>
+      <li><strong>Tidak pedas</strong> — not spicy · <strong>Air</strong> — water</li>
+    </ul>`],
+];
+function renderInfo(){
+  document.getElementById("info-list").innerHTML = INFO.map(([emoji, title, body]) =>
+    '<details><summary><span class="emoji">' + emoji + '</span>' + title + '</summary><div class="body">' + body + '</div></details>').join("");
+}
+
+/* =====================================================================
+   MODAL PLUMBING + BOOT
+   ===================================================================== */
+function openModal(html){
+  document.getElementById("modal-body").innerHTML = html;
+  document.getElementById("modal-back").classList.add("open");
+}
+function closeModal(){ document.getElementById("modal-back").classList.remove("open"); }
+document.getElementById("modal-back").addEventListener("click", e => { if (e.target.id === "modal-back") closeModal(); });
+
+function renderAll(){ renderHome(); renderItin(); renderExplore(); renderPack(); renderBudget(); renderInfo(); }
+renderAll();
+
+if ("serviceWorker" in navigator && location.protocol !== "file:")
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>

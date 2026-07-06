@@ -1,0 +1,24 @@
+{
+  "name": "Cassia Bintan Holiday Companion",
+  "short_name": "Bintan Trip",
+  "description": "Itinerary, packing, budget and island guide for your Cassia Bintan holiday — works fully offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f1e6",
+  "theme_color": "#0d7a72",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d7a72'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle'%3E🌴%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230d7a72'/%3E%3Ctext x='50' y='66' font-size='44' text-anchor='middle'%3E🌴%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
